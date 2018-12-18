@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"github.com/CookiesChen/AI/SA/hill_climbing"
+	"github.com/CookiesChen/AI/SA/sa"
 	"os"
 	"strconv"
 	"strings"
@@ -11,7 +11,8 @@ import (
 func main() {
 	filePath := "tsp/d198.tsp"
 	xs, ys := getData(filePath)
-	hill_climbing.Exec(xs, ys)
+	// hill_climbing.Exec(xs, ys)
+	sa.Exec(xs, ys)
 }
 
 // 读取文件
