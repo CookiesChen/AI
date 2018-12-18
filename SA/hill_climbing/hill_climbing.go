@@ -44,10 +44,8 @@ func hillClimbing() {
 		} else {
 			itCount++
 		}
-		fmt.Print(n)
-		fmt.Print(" ")
-		fmt.Println(currentDis)
-		fmt.Println(path)
+		fmt.Printf("迭代数: %v, 当前解: %.2f, 最优解: 15780\n", n, currentDis)
+		//fmt.Println(path)
 	}
 }
 
