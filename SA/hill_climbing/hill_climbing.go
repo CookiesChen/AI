@@ -16,7 +16,7 @@ type nodePath []node
 
 var(
 	path         nodePath
-	MaxIteration = 1500
+	MaxIteration = 2000
 	cityNum      int
 )
 func Exec(xs []float64, ys []float64) {
@@ -44,7 +44,7 @@ func hillClimbing() {
 		} else {
 			itCount++
 		}
-		fmt.Printf("迭代数: %v, 当前解: %.2f, 最优解: 15780\n", n, currentDis)
+		fmt.Printf("迭代数: %v, %.2f%%\n", n, (1-(currentDis-15780)/15780)*100)
 		//fmt.Println(path)
 	}
 }
