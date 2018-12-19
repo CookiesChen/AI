@@ -11,7 +11,7 @@ import (
 func main() {
 	filePath := "tsp/d198.tsp"
 	xs, ys := getData(filePath)
-	// hill_climbing.Exec(xs, ys)
+	//hill_climbing.Exec(xs, ys)
 	sa.Exec(xs, ys)
 }
 
