@@ -1,0 +1,85 @@
+<!doctype html>
+<!--
+Copyright 2018 The Go Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SA</title>
+  <style>
+    body {
+      text-align: center;
+    }
+
+    #map {
+      border: 1px solid #000;
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <button id="beginButton">开始</button>
+  <button id="stopButton">暂停</button>
+  <p id="title">爬山</p>
+  <p>迭代数： <span id="countText"></span></p>
+  <p>误差百分比： <span id="errorText"></span></p>
+  <canvas width="500" height="500" id="map" />
+
+  <script src="wasm_exec.js"></script>
+  <script>
+    var currentNode, currentValue, searchedNode, isSuccess, isEnd, opened, currentDeep, lastNode;
+    if (!WebAssembly.instantiateStreaming) {
+      WebAssembly.instantiateStreaming = async (resp, importObject) => {
+        const source = await (await resp).arrayBuffer();
+        return await WebAssembly.instantiate(source, importObject);
+      };
+    }
+    const go = new Go();
+    let mod, inst;
+
+    WebAssembly.instantiateStreaming(fetch('index.wasm'), go.importObject).then(async (result) => {
+      mod = result.module;
+      inst = result.instance;
+      await go.run(inst);
+      inst = await WebAssembly.instantiate(mod, go.importObject);
+    });
+    let tick;
+
+    window.updateNode = function (count, error, x, y) {
+      // console.log(count, error, x, y)
+      document.getElementById('countText').innerHTML = count
+      document.getElementById('errorText').innerHTML = error
+      locX = x.split(',')
+      locY = y.split(',')
+
+      let c=document.getElementById("map")
+      let ctx=c.getContext("2d")
+      ctx.clearRect(0, 0, 500,500)
+      ctx.beginPath()
+      ctx.moveTo(locX[0] / 10,locY[0] / 10)
+      for (let i = 1; i < locX.length; i++) {
+        ctx.lineTo(locX[i] / 10,locY[i] / 10)
+      }
+      ctx.closePath()
+      ctx.stroke()
+      tick = setTimeout(nextStep, 20)
+     // console.log(locX, locY)
+    }
+
+    document.getElementById("beginButton").onclick = () => {
+      nextStep()
+    }
+
+    document.getElementById("stopButton").onclick = () => {
+      clearTimeout(tick)
+    }
+  </script>
+  </div>
+</body>
+
+</html>
