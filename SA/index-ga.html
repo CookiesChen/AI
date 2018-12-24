@@ -8,25 +8,20 @@ license that can be found in the LICENSE file.
 
 <head>
   <meta charset="utf-8">
-  <title>SA</title>
+  <title>GA</title>
   <style>
     body {
       text-align: center;
     }
-
-    #map {
-
-    }
-
-
   </style>
 </head>
 
 <body>
   <button id="beginButton">开始</button>
   <button id="stopButton">暂停</button>
-  <p id="title">模拟退火</p>
-  <p>迭代数： <span id="countText"></span></p>
+  <p id="title">遗传算法</p>
+  <p>当前代数： <span id="nowText"></span></p>
+  <p>最优解代数： <span id="countText"></span></p>
   <p>误差百分比： <span id="errorText"></span></p>
   <canvas width="1000" height="1000" id="map" />
 
@@ -42,7 +37,7 @@ license that can be found in the LICENSE file.
     const go = new Go();
     let mod, inst;
 
-    WebAssembly.instantiateStreaming(fetch('index-sa.wasm'), go.importObject).then(async (result) => {
+    WebAssembly.instantiateStreaming(fetch('index-ga.wasm'), go.importObject).then(async (result) => {
       mod = result.module;
       inst = result.instance;
       await go.run(inst);
@@ -50,8 +45,10 @@ license that can be found in the LICENSE file.
     });
     let tick;
 
-    window.updateNode = function (count, error, x, y) {
+    window.updateNode = function (now, count, error, x, y) {
       // console.log(count, error, x, y)
+      tick = setTimeout(nextStep, 10)
+      document.getElementById('nowText').innerHTML = now
       document.getElementById('countText').innerHTML = count
       document.getElementById('errorText').innerHTML = error
       locX = x.split(',')
@@ -70,7 +67,6 @@ license that can be found in the LICENSE file.
       ctx.closePath()
       ctx.fillStyle="#DD5145"
       ctx.stroke()
-      tick = setTimeout(nextStep, 20)
      // console.log(locX, locY)
     }
 
