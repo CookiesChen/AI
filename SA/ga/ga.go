@@ -1,6 +1,7 @@
 package ga
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"sort"
@@ -36,14 +37,14 @@ func (I individuals) Swap(i, j int) {
 var (
 	path          individual
 	cityNum       int
-	MaxGen        = 300       // 遗传次数
-	populationNum = 100       // 个体数
+	MaxGen        = 50000       // 遗传次数
+	populationNum = 200       // 个体数
 	population    individuals // 种群
 	minGen        = 0		  // 最优解出现遗传代数
-	minFitness    float64	  // 最优适应值
-	Pc            = 0.7       // 交叉概率
-	Pm            = 0.01      // 变异概率
+	Pc            = 0.95       // 交叉概率
+	Pm            = 0.001      // 变异概率
 	matingPool    individuals // 交配池
+	best          individual  //
 )
 
 func Exec(xs []float64, ys []float64) {
@@ -62,20 +63,20 @@ func ga() {
 	// 初始化种群
 	initialize()
 	for nowGen < MaxGen {
+		// 遗传操作
+		inheritance()
+		nowGen++
 		// 个体评估
 		for i:=0 ; i < populationNum; i++{
 			population[i].fitness = evaluate(population[i])
 		}
-		// 遗传操作
-		inheritance()
-		nowGen++
 		// 根据适应值进行排序
 		sort.Sort(population)
-		if population[0].fitness < minFitness {
-			minFitness = population[0].fitness
+		if population[0].fitness < best.fitness {
+			best = population[0]
 			minGen = nowGen
 		}
-		break
+		fmt.Println(float64(best.fitness-15780)/float64(15780)*100)
 	}
 }
 
@@ -96,7 +97,8 @@ func initialize() {
 		population[i].fitness = evaluate(population[i])
 	}
 	sort.Sort(population)
-	minFitness = population[0].fitness
+	best = population[0]
+	// fmt.Println(minFitness)
 }
 
 // 贪心初始解
@@ -171,8 +173,8 @@ func selection() {
 	tenth := int(float32(populationNum)*0.1)
 	matingPool = make(individuals, tenth)
 	copy(matingPool, population)
-	// 前10-60%中使用基于排名的轮盘赌选出20%
-	fiftieth := tenth*5
+	// 使用基于排名的轮盘赌选出20%
+	fiftieth := tenth*8
 	p := make([]float64, fiftieth)
 	a := 1.1
 	b := 2*(a-1)
@@ -181,7 +183,7 @@ func selection() {
 		res += (a - b*float64(i)/(float64(fiftieth)+1))/float64(fiftieth)
 		p[i] = res
 	}
-	for i:= 0 ; i < 2*tenth ; i++ {
+	for i:= 0 ; i < tenth*3; i++ {
 		r := rand.Float64()
 		for j:= 0 ; j < fiftieth ; j++ {
 			if r <= p[j] {
@@ -191,10 +193,10 @@ func selection() {
 		}
 	}
 	// 前10%直接遗传
-	population = population[:tenth+1]
+	population = population[:tenth]
 }
 
-// 交叉操作
+// 交叉操作和变异操作
 // OX
 func crossover() {
 	poolSize := len(matingPool)
@@ -203,10 +205,56 @@ func crossover() {
 		// 随机选择交配对象
 		parent1 := matingPool[rand.Intn(poolSize-1)]
 		parent2 := matingPool[rand.Intn(poolSize-1)]
+		r1 := rand.Intn(cityNum-1)
+		r2 := r1 + rand.Intn(cityNum-1-r1)
+		var newIndividual individual
 		if r <= Pc {
-			r1 := rand.Intn(cityNum-1)
-			r2 := r1 + rand.Intn(cityNum-1-r1)
-			middle :=
+			middle := parent1.genes[r1:r2+1]
+			newIndividual.genes = make([]node, 0)
+			count := 0
+			once := 0
+			for i:=0; i < cityNum; i++ {
+				flag := 0
+				for _,v := range middle{
+					if v.x == parent2.genes[i].x && v.y == parent2.genes[i].y {
+						flag = 1
+						break
+					}
+				}
+				if count == r1 && once == 0 {
+					once = 1
+					newIndividual.genes = append(newIndividual.genes, middle...)
+				}
+				if flag == 0 {
+					newIndividual.genes = append(newIndividual.genes,  parent2.genes[i])
+					count++
+				}
+			}
+		} else {
+			newIndividual = parent1
 		}
+		r = rand.Float64()
+		if r < Pm {
+			newIndividual = twoOpt(newIndividual)
+		}
+		population = append(population, newIndividual)
 	}
+}
+
+func twoOpt(oldIndividual individual) (newIndividual individual) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	start := r.Intn(cityNum-1)
+	end := start + r.Intn(cityNum-1-start)
+	// 第一段不变
+	newIndividual.genes = make([]node, cityNum)
+	copy(newIndividual.genes, oldIndividual.genes[:start])
+	// 第二段反转
+	for i := 0; i <= end-start; i++ {
+		newIndividual.genes[start+i] = oldIndividual.genes[end-i]
+	}
+	// 第三段不变
+	for i := end + 1; i < cityNum; i++ {
+		newIndividual.genes[i] = oldIndividual.genes[i]
+	}
+	return newIndividual
 }
