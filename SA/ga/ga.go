@@ -37,11 +37,11 @@ func (I individuals) Swap(i, j int) {
 var (
 	path          individual
 	cityNum       int
-	MaxGen        = 50000       // 遗传次数
-	populationNum = 150       // 个体数
+	MaxGen        = 1000       // 遗传次数
+	populationNum = 100       // 个体数
 	population    individuals // 种群
 	minGen        = 0		  // 最优解出现遗传代数
-	Pc            = 0.99       // 交叉概率
+	Pc            = 0.98       // 交叉概率
 	Pm            = 0.075      // 变异概率
 	matingPool    individuals // 交配池
 	best          individual  //
@@ -85,7 +85,7 @@ func ga() {
 // 初始化
 func initialize() {
 	// 贪心生成10%初始解
-	num := int(float32(populationNum)*0)
+	num := int(float32(populationNum)*0.05)
 	for i := 0; i < num; i++{
 		population = append(population, greedyIndividual())
 	}
