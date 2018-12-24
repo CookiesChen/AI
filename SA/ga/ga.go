@@ -38,11 +38,11 @@ var (
 	path          individual
 	cityNum       int
 	MaxGen        = 50000       // 遗传次数
-	populationNum = 200       // 个体数
+	populationNum = 150       // 个体数
 	population    individuals // 种群
 	minGen        = 0		  // 最优解出现遗传代数
-	Pc            = 0.95       // 交叉概率
-	Pm            = 0.001      // 变异概率
+	Pc            = 0.99       // 交叉概率
+	Pm            = 0.075      // 变异概率
 	matingPool    individuals // 交配池
 	best          individual  //
 )
@@ -67,11 +67,13 @@ func ga() {
 		inheritance()
 		nowGen++
 		// 个体评估
-		for i:=0 ; i < populationNum; i++{
+		for i:=0 ; i < 2*populationNum; i++{
 			population[i].fitness = evaluate(population[i])
 		}
 		// 根据适应值进行排序
 		sort.Sort(population)
+		//fmt.Println(len(population))
+		population = population[:populationNum]
 		if population[0].fitness < best.fitness {
 			best = population[0]
 			minGen = nowGen
@@ -83,7 +85,7 @@ func ga() {
 // 初始化
 func initialize() {
 	// 贪心生成10%初始解
-	num := int(float32(populationNum)*0.1)
+	num := int(float32(populationNum)*0)
 	for i := 0; i < num; i++{
 		population = append(population, greedyIndividual())
 	}
@@ -174,7 +176,7 @@ func selection() {
 	matingPool = make(individuals, tenth)
 	copy(matingPool, population)
 	// 使用基于排名的轮盘赌选出20%
-	fiftieth := tenth*8
+	fiftieth := tenth*7
 	p := make([]float64, fiftieth)
 	a := 1.1
 	b := 2*(a-1)
@@ -200,7 +202,7 @@ func selection() {
 // OX
 func crossover() {
 	poolSize := len(matingPool)
-	for len(population) < populationNum {
+	for len(population) < 2*populationNum {
 		r := rand.Float64()
 		// 随机选择交配对象
 		parent1 := matingPool[rand.Intn(poolSize-1)]
