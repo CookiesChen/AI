@@ -15,7 +15,7 @@ license that can be found in the LICENSE file.
     }
 
     #map {
-      border: 1px solid #000;
+      
     }
 
 
@@ -28,7 +28,7 @@ license that can be found in the LICENSE file.
   <p id="title">模拟退火</p>
   <p>迭代数： <span id="countText"></span></p>
   <p>误差百分比： <span id="errorText"></span></p>
-  <canvas width="500" height="500" id="map" />
+  <canvas width="1000" height="1000" id="map" />
 
   <script src="wasm_exec.js"></script>
   <script>
@@ -56,16 +56,19 @@ license that can be found in the LICENSE file.
       document.getElementById('errorText').innerHTML = error
       locX = x.split(',')
       locY = y.split(',')
-
+      console.log(locX, locY)
       let c=document.getElementById("map")
       let ctx=c.getContext("2d")
-      ctx.clearRect(0, 0, 500,500)
+      ctx.clearRect(0, 0, 1000,1000)
       ctx.beginPath()
-      ctx.moveTo(locX[0] / 10,locY[0] / 10)
-      for (let i = 1; i < locX.length; i++) {
-        ctx.lineTo(locX[i] / 10,locY[i] / 10)
+      ctx.moveTo(locX[0] / 5,locY[0] / 5)
+      ctx.fillRect(locX[0] / 5-2,locY[0] / 5 - 2,4,4);
+      for (let i = 1; i < locX.length - 1; i++) {
+        ctx.lineTo(locX[i] / 5,locY[i] / 5)
+        ctx.fillRect(locX[i] / 5-2,locY[i] / 5 - 2,4,4);
       }
       ctx.closePath()
+      ctx.fillStyle="#DD5145"
       ctx.stroke()
       tick = setTimeout(nextStep, 20)
      // console.log(locX, locY)
