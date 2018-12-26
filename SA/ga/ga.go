@@ -105,7 +105,7 @@ func ga() func() {
 
 // 初始化
 func initialize() {
-	// 贪心生成10%初始解
+	// 贪心生成5%初始解
 	num := int(float32(populationNum) * 0.05)
 	for i := 0; i < num; i++ {
 		population = append(population, greedyIndividual())
