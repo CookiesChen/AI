@@ -2,20 +2,20 @@ package main
 
 import (
 	"bufio"
-	"github.com/CookiesChen/AI/SA/ga"
 	"strconv"
 	"strings"
+
+	"github.com/CookiesChen/AI/SA/ga"
 )
 
 func main() {
-	//c := make(chan struct{}, 0)
+	c := make(chan struct{}, 0)
 	println("hello wasm")
 	filePath := "tsp/d198.tsp"
 	xs, ys := getData(filePath)
-	// hill_climbing.Exec(xs, ys)
-	// sa.Exec(xs, ys)
 	ga.Exec(xs, ys)
-	//<-c
+	// sa.Exec(xs, ys)
+	<-c
 }
 
 // 读取文件
